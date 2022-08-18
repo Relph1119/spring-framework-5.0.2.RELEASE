@@ -408,8 +408,10 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 * @param beanName the name of the bean
 	 * @param dependentBeanName the name of the dependent bean
 	 */
+	// 为指定的Bean注入依赖的Bean
 	public void registerDependentBean(String beanName, String dependentBeanName) {
 		// A quick check for an existing entry upfront, avoiding synchronization...
+		// 处理Bean名称，将别名转换为规范的Bean名称
 		String canonicalName = canonicalName(beanName);
 		Set<String> dependentBeans = this.dependentBeanMap.get(canonicalName);
 		if (dependentBeans != null && dependentBeans.contains(dependentBeanName)) {
@@ -417,12 +419,16 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 		}
 
 		// No entry yet -> fully synchronized manipulation of the dependentBeans Set
+		// 多线程同步，保证容器内数据的一致性
+		// 在容器中，通过“Bean名称->全部依赖Bean名称集合”查找指定名称Bean的依赖Bean
 		synchronized (this.dependentBeanMap) {
 			dependentBeans = this.dependentBeanMap.get(canonicalName);
 			if (dependentBeans == null) {
+				// 为Bean设置依赖Bean信息
 				dependentBeans = new LinkedHashSet<>(8);
 				this.dependentBeanMap.put(canonicalName, dependentBeans);
 			}
+			// 在向容器中通过“Bean名称->指定名称Bean的依赖Bean集合”查找指定名称Bean的依赖Bean
 			dependentBeans.add(dependentBeanName);
 		}
 		synchronized (this.dependenciesForBeanMap) {
@@ -431,6 +437,8 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 				dependenciesForBean = new LinkedHashSet<>(8);
 				this.dependenciesForBeanMap.put(dependentBeanName, dependenciesForBean);
 			}
+			// 在容器中通过“Bean名称->指定Bean的依赖Bean名称集合”添加Bean的依赖信息
+			// 即将Bean所依赖的Bean添加到容器的集合中
 			dependenciesForBean.add(canonicalName);
 		}
 	}
