@@ -123,12 +123,17 @@ configure(allprojects) { project ->
 		reports.junitXml.setDestination(file("$buildDir/test-results"))
 	}
 
+//	repositories {
+//		maven { url "https://repo.spring.io/libs-release" }
+//		maven { url "https://repo.spring.io/milestone" }  // for AspectJ 1.9 beta
+//		maven { url 'https://maven.aliyun.com/repository/public/' }
+//		mavenCentral()
+//		mavenLocal()
+//	}
 	repositories {
-		maven { url "https://repo.spring.io/libs-release" }
-		maven { url "https://repo.spring.io/milestone" }  // for AspectJ 1.9 beta
-		maven { url 'https://maven.aliyun.com/repository/public/' }
-		mavenCentral()
 		mavenLocal()
+		maven { url 'https://maven.aliyun.com/nexus/content/groups/public/' }
+		maven { url 'https://maven.aliyun.com/nexus/content/repositories/spring-plugin' }
 	}
 
 	dependencies {
@@ -198,7 +203,7 @@ configure(subprojects - project(":spring-build-src")) { subproject ->
 		options.use = true
 		options.links(project.ext.javadocLinks)
 		options.addStringOption('Xdoclint:none', '-quiet')
-
+		options.encoding = "UTF-8"
 		// Suppress warnings due to cross-module @see and @link references.
 		// Note that global 'api' task does display all warnings.
 		logging.captureStandardError LogLevel.INFO
@@ -302,4 +307,8 @@ def qualifyVersionIfNecessary(version) {
 		}
 	}
 	return version
+}
+
+tasks.withType(JavaCompile) {
+	options.encoding = "UTF-8"
 }
